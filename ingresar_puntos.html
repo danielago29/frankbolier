@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/main.js" defer></script>    
+    <title>Clientes</title>  
+ 
+</head>
+<body>
+    <section>
+        <nav class="logo d-flex" style="align-items: center;">
+            <div class="img" style="align-items: center;">
+                <img src="/img/logo3.png" alt="" width="80" height="80" style="border-radius: 4rem;background-color: #333333;">
+            </div>
+            <h3 class="p-5">
+                FRANKBOLIER
+            </h3>
+        </nav>        
+    </section>
+
+    <!-- Agrega la clase "container" para crear un contenedor con Bootstrap -->
+    <section class="container m-5" style="width: 100%;">
+        <div class="row d-flex" style="flex-wrap: nowrap;">
+            <!-- Bloque izquierdo -->
+            <div class="col-md-6 izquierdo d-grid p-5" style="justify-content:center;background-color: rgba(56, 67, 69, 0.8); align-content: space-evenly;margin-right: 20px;align-content:center; border-radius: 2em;width: 60%;">
+                <!-- Contenido del div izquierdo -->
+                <div class="form-container d-flex">
+                    <form class="form" id="nuevo-cliente-form">
+                        <p class="title">Registro</p>
+                        <p class="message">Regístrate ahora y obtén acceso completo a nuestra aplicación.</p>
+            
+                        <div class="flex">
+                            <label>
+                                <input id="cliente_existe" required="" placeholder="" type="text" class="input">
+                                <span>Cédula del cliente</span>
+                                <p id="mensaje_cliente"class="message" style="display:none;" name="tipo_cliente">¡El cliente ya existe!</p>
+                            </label>
+
+                        </div>
+                        <div class="flex">
+                            <label>
+                                <input required="" placeholder="" type="text" class="input">
+                                <span>Nombre</span>
+                            </label>
+                            <label>
+                                <input required="" placeholder="" type="text" class="input">
+                                <span>Apellido</span>
+                            </label>
+                        </div>
+            
+                        <label>
+                            <input required="" placeholder="" type="email" class="input">
+                            <span>Correo electrónico</span>
+                        </label>
+            
+                        <label>
+                            <p class="message">Número de contacto</p>
+                            <input class="input" type="tel" id="phone" name="phone" placeholder="057-312-456-6788"
+                                pattern="[0-9]{3}-[0-9]{3}-[0-9]{3}-[0-9]{4}">
+                        </label>
+                        <label>
+                            <p class="message">Fecha de Nacimiento</p>
+                            <input class="input" type="date" id="phone" name="fecha_nac">
+                        </label>        
+                        <div class="flex">
+                            <label>
+                                <select name="select" class="select">
+                                    <option value=0 selected >Elija una vendedora</option>
+                                    <option value=1>1 Dalgy</option>
+                                    <option value=2>2 Clara</option>
+                                    <option value=3>3 Martha</option>
+                                  </select>                              
+                            </label>
+                        </div>                    
+                        <button class="submit">Guardar Registro</button>
+                    </form>         
+                </div>
+            </div>
+            <section class="container" style="height: 800px;width: 60%;">
+                <!-- Bloque derecho -->
+                <aside class="col-md-12 d-flex flex-column" style="justify-content: center;height: 400px;width: 100%;">
+                    <!-- Div derecho principal -->
+                    <div class="derecho-principal d-grid p-5" style="height: 450px;justify-content: center; background-color: rgba(209, 148, 148, 0.6); border-radius: 2em;">
+                        <!-- Contenido del div derecho-principal -->
+                        <div class="form-container d-flex">
+                            <form class="form" id="nuevo-factura-form">
+                                <p class="title">Factura</p>
+                                <div class="flex">
+                                    <label>
+                                        <input required="" placeholder="" type="text" class="input" id="idClienteInput">
+                                        <span>Cédula del cliente</span>                                        
+                                    </label>
+                                    <label>
+                                        <input required="" placeholder="" type="text" class="input" id="idVendedoraInput" readonly>
+                                    </label>        
+                                </div>
+                                <div class="flex">
+                                    <label>
+                                        <input required="" placeholder="" type="number" class="input">
+                                        <span>N° Factura</span>
+                                    </label>
+                                    <label>
+                                        <input required="" placeholder="" type="number" class="input" id="valor_factura">
+                                        <span>Monto</span>
+                                    </label>
+                                </div>
+                                <div class="flex">
+                                    <label>
+                                        <p class="message">Fecha Factura</p>
+                                        <input required="" placeholder="" type="date" class="input">                                        
+                                    </label>
+                                    <label>
+                                        <p class="message">Puntos</p>
+                                        <input required="" placeholder="" type="number" class="input" id="puntos_calculo" readonly>
+                                    </label>
+                                </div>
+                                <button class="submit">Guardar Factura</button>
+                            </form>
+                        </div>
+                        <div style="display: flex; justify-content: center; height: 100vh;">
+                            <p style="text-align: center;">Recuerda enviar el cupón <br>al cliente antes de guardar la factura</p>
+                        </div>
+                        
+                    </div>
+                    <div style="height: 50px;">
+                        <h1></h1>
+                    </div>
+                </aside>
+                <aside class="col-md-12 d-flex flex-column" style="justify-content:center;margin-top: 5px;">            
+                    <div class="row d-flex" style="flex-wrap: nowrap;">
+                        <!-- Div divi-peq-1 -->
+                        <div class="col divi-peq-1 d-grid p-4" style="background-color: rgba(165, 171, 165, 0.8);margin-top: 10px;margin-bottom: 0;height: 350px; width:100%; align-content: space-evenly; border-radius: 2em;">
+                        <!-- Contenido del div divi-peq-1 -->
+                            <div class="subtitulo">
+                                <h5>N° Cupón</h5>
+                            </div>
+                            <div class="titulo">
+                                <h1 id="codigo-cupon"></h1>
+                                <p id="bonoRecompra" class="message"style="display: none; color: #000000;"></p>
+                                <input id="fechaInput" type="date" readonly class="message"style="display: none; color: #000000;"></input>
+                            </div>
+                            <div class="button">                                
+                                <button>
+                                    <span class="button_top"> Enviar Cupón
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    
+                        <!-- Div divi-peq-2 -->
+                        <div class="col divi-peq-2 d-grid p-4 m-5" style="background-color: rgba(56, 76, 91, 0.8);height: 350px;width: 50%; align-content: space-evenly;border-radius: 2em;">
+                            <!-- Contenido del div divi-peq-2 -->
+                            <div class="subtitulo">
+                                <h5 style="color: #fff;">N° Puntos Acumulados</h5>
+                            </div>
+                            <div class="puntos">                                
+                                <input  id="puntosClienteInput" type="text" class="title" readonly style="color:rgba(56, 76, 91, 0.8); border-color: #fff;"></input>
+                            </div>
+                            <div class="boton">
+                                <button>
+                                    <span class="button_top"> Enviar Puntos
+                                    </span>
+                                </button>   
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </section>
+
+        </div>
+
+</section>
+<!-- Your JavaScript code -->
+<!-- Agrega las librerías de JavaScript de Bootstrap y jQuery si aún no lo has hecho -->
+
+<!-- Tu código JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var myModalButton = document.querySelector('#btnIngresarPuntos');
+        var miModal = new bootstrap.Modal(document.getElementById('putCliente'));
+
+        myModalButton.addEventListener('click', function () {
+            miModal.show();
+        });
+    });
+const input1 = document.getElementById('valor_factura');
+const input2 = document.getElementById('puntos_calculo');
+
+input1.addEventListener('input', function() {
+  const inputValue = parseFloat(input1.value);
+  
+  if (!isNaN(inputValue)) {
+    const newValue = (inputValue / 1000)*2;
+    input2.value = newValue;
+  }
+});
+    
+
+</script>  
+
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>   
+</body>
+</html>
