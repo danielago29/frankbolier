@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    
     <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
-    <script src="/js/main.js" defer></script>    
-    <title>Clientes</title>  
+    <title>Clientes</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/main.js" defer></script> 
+
  
 </head>
 <body>
@@ -76,7 +78,26 @@
                         <div class="col divi-peq-1 d-grid m-2 p-5" style="background-color: rgba(165, 171, 165, 0.8);margin-top: 10px;margin-bottom: 0;height: 350px; width:100%; align-content: space-evenly; border-radius: 2em;">
                         <!-- Contenido del div divi-peq-1 -->
                             <div class="title">
-                                <h5>Redención de cupones</h5>
+                                <h5>Redención de puntos</h5>
+                            </div>                            
+                            <label>
+                                <span>De click aquí <br> para redimir puntos</span>                                        
+                            </label>                        
+                            <div class="boton">
+                                <a href="puntos.html">
+                                    <button>
+                                        <span class="button_top"> Redimir Puntos
+                                        </span>
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
+                    
+                        <!-- Div divi-peq-2 -->
+                        <div class="col divi-peq-2 d-grid p-5 m-2" style="background-color: rgba(56, 76, 91, 0.8);height: 350px;width: 50%; align-content: space-evenly;border-radius: 2em;">
+                            <!-- Contenido del div divi-peq-2 -->
+                            <div class="subtitulo">
+                                <h5 style="color: #fff;">Redención de cupón</h5>
                             </div>
                             <div class="form">
                                 <label>
@@ -86,24 +107,7 @@
                             </div>
                             <div class="boton">
                                 <button id="btnIngresarPuntos">
-                                    <span class="button_top"> Redimir Cupon
-                                    </span>
-                                  </button>
-                            </div>
-                        </div>
-                    
-                        <!-- Div divi-peq-2 -->
-                        <div class="col divi-peq-2 d-grid p-5 m-2" style="background-color: rgba(56, 76, 91, 0.8);height: 350px;width: 50%; align-content: space-evenly;border-radius: 2em;">
-                            <!-- Contenido del div divi-peq-2 -->
-                            <div class="subtitulo">
-                                <h5 style="color: #fff;">Redención de puntos</h5>
-                            </div>
-                            <div class="titulo">
-                                <h1 style="color: #fff;">Redimir<br>puntos</h1>
-                            </div>
-                            <div class="boton">
-                                <button>
-                                    <span class="button_top"> Redimir Puntos
+                                    <span id="cupon_redimido" class="button_top"> Redimir Cupon
                                     </span>
                                 </button>   
                             </div>
@@ -111,69 +115,52 @@
                     </div>
                 </aside>
             </section>
-
         </div>
 
-    </section>
-    <!-- Modal -->
-    <div class="modal fade" id="putCliente" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">            
-            <div class="modal-body">
-                <form class="form" id="nuevo-factur-show">
-                    <p class="title">Factura</p>
-                    <div class="flex">
-                        <label>
-                            <input required="" placeholder="" type="text" class="input" id="idClienteShow">
-                            <span>Cédula del cliente</span>                                        
-                        </label>
-                        <label>
-                            <input required="" placeholder="" type="text" class="input" id="idVendedoraShow" readonly>
-                        </label>        
-                    </div>
-                    <div class="flex">
-                        <label>
-                            <input required="" placeholder="" type="number" class="input" id="facturaShow">
-                            <span>N° Factura</span>
-                        </label>
-                        <label>
-                            <input required="" placeholder="" type="number" class="input" id="valorShow">
-                            <span>Monto</span>
-                        </label>
-                    </div>
-                    <div class="flex">
-                        <label>
-                            <p class="message">Fecha Factura</p>
-                            <input required="" placeholder="" type="date" class="input" id="fechaShow">                                        
-                        </label>
-                        <label>
-                            <p class="message">Puntos</p>
-                            <input required="" placeholder="" type="number" class="input" id="puntosShow" readonly>
-                        </label>
-                    </div>
-                    <button class="submit">Redimir cupon</button>
-                </form>
-            </div>           
-          </div>
-        </div>
-      </div>
-<!-- Your JavaScript code -->
-<!-- Agrega las librerías de JavaScript de Bootstrap y jQuery si aún no lo has hecho -->
-
+    </section>    
 <!-- Tu código JavaScript -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var myModalButton = document.querySelector('#btnIngresarPuntos');
-        var miModal = new bootstrap.Modal(document.getElementById('putCliente'));
+    var myModalButton = document.querySelector('#btnIngresarPuntos');
+    var cuponRedimidoInput = document.getElementById('cupon_redimido');
+    
 
-        myModalButton.addEventListener('click', function () {
-            miModal.show();
+    // Obtén el valor del cupón redimido de la URL
+    var urlParams = new URLSearchParams(window.location.search);
+    var facturaShowValue = urlParams.get('facturaShowValue');
+    
+    if (facturaShowValue) {
+        cuponRedimidoInput.value = facturaShowValue;
+        
+        // Simula manualmente el evento de cambio en el input
+        var event = new Event('input', {
+            bubbles: true,
+            cancelable: true,
         });
-    });
+        
+        cuponRedimidoInput.dispatchEvent(event);
+    }
+
+        myModalButton.addEventListener('click', function (event) {
+        event.preventDefault(); // Previene el comportamiento predeterminado del enlace
+        var cuponRedimido = document.getElementById('cupon_redimido').value;
+        
+        // Construye la URL con el parámetro
+        var queryParams = new URLSearchParams({
+            facturaShowValue: cuponRedimido
+        });
+
+        // Redirige a la otra página con el parámetro en la URL
+        window.location.href = 'cupones.html?' + queryParams.toString();
+    }); 
+    
+});
+
 </script>
+<script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>   
+</body>
+</html>
+
 
    
 
-    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>   
-</body>
-</html>

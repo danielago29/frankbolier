@@ -6,7 +6,9 @@
     <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <script src="/js/main.js" defer></script>    
-    <title>Clientes</title>  
+    <title>Clientes</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
  
 </head>
 <body>
@@ -99,7 +101,7 @@
                                 </div>
                                 <div class="flex">
                                     <label>
-                                        <input required="" placeholder="" type="number" class="input">
+                                        <input required="" placeholder="" type="number" class="input" id="numeroFactura">
                                         <span>N° Factura</span>
                                     </label>
                                     <label>
@@ -110,11 +112,17 @@
                                 <div class="flex">
                                     <label>
                                         <p class="message">Fecha Factura</p>
-                                        <input required="" placeholder="" type="date" class="input">                                        
+                                        <input required="" placeholder="" type="date" class="input" id="fechaCrea">                                        
                                     </label>
                                     <label>
                                         <p class="message">Puntos</p>
                                         <input required="" placeholder="" type="number" class="input" id="puntos_calculo" readonly>
+                                    </label>
+                                </div>
+                                <div class="flex" style="display: none;">
+                                    <label>
+                                        <p class="message">Observaciones</p>
+                                        <textarea  placeholder="" class="input" id="observaciones" style="width: 310px;"></textarea>                            
                                     </label>
                                 </div>
                                 <button class="submit">Guardar Factura</button>
@@ -189,15 +197,16 @@
 const input1 = document.getElementById('valor_factura');
 const input2 = document.getElementById('puntos_calculo');
 
-input1.addEventListener('input', function() {
-  const inputValue = parseFloat(input1.value);
-  
-  if (!isNaN(inputValue)) {
-    const newValue = (inputValue / 1000)*2;
-    input2.value = newValue;
-  }
-});
-    
+    input1.addEventListener('input', function() {
+            const inputValue = input1.value;
+            
+            if (!isNaN(inputValue)) {
+                const newValue =(inputValue / 1000) * 2; // Redondear el resultado
+                input2.value = newValue;
+            } else {
+                input2.value = ''; // Limpiar el campo si el valor no es válido
+            }
+        });    
 
 </script>  
 

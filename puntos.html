@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">   
+    <title>Clientes</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/main.js" defer></script>  
+       
+  
+ 
+</head>
+<body>
+    <section>
+        <nav class="logo d-flex" style="align-items: center;">
+            <div class="img" style="align-items: center;">
+                <img src="/img/logo3.png" alt="" width="80" height="80" style="border-radius: 4rem;background-color: #333333;">
+            </div>
+            <h3 class="p-5">
+                FRANKBOLIER
+            </h3>
+        </nav>            
+    </section>
+    <section class="container" style="height: 800px;width: 100%; display: flex; justify-content: center; align-items: center;">
+        <!-- Bloque derecho -->
+        <aside class="col-md-12 d-flex flex-column" style=" justify-content: center;height: 400px;width: 100%;">
+            <!-- Div derecho principal -->
+            <div class="derecho-principal d-grid p-5" style="height: 750px;justify-content: center; background-color: rgba(209, 148, 148, 0.6); border-radius: 2em;">
+                <!-- Contenido del div derecho-principal -->
+                <div class="form-container d-flex justify-content-center align-items-center">
+                    <form class="form" id="nuevo-puntos-show">
+                        <p class="title">Redención de puntos</p>
+                        <div class="flex">
+                            <label>
+                                <p class="message">Cédula del cliente</p> 
+                                <input required="" placeholder="" type="text" class="input" id="idClientePuntos" name="idClientePuntos">
+                                                                       
+                            </label>
+                            <label>
+                                <p class="message">Id Vendedora</p> 
+                                <input required="" placeholder="" type="text" class="input" id="idVendedoraPuntos" readonly name="idVendedoraPuntos">
+                            </label>        
+                        </div>
+                        <div class="flex">
+                            <label>
+                                <p class="message">N° Factura</p>
+                                <input required="" placeholder="" type="text" class="input" id="facturaPuntos" name="facturaPuntos">
+                                
+                            </label>
+                            <label>
+                                <p class="message">Valor Factura</p>
+                                <input required="" placeholder="" type="number" class="input" id="valorPuntos" value="0" readonly name="valorPuntos">                            
+                            </label>                        
+                        </div>
+                        <div class="flex">
+                            <label>
+                                <p class="message">Observaciones</p>
+                                <textarea required="" placeholder="" class="input" id="observacionesPuntos" name="observacionesPuntos" style="width: 310px;"></textarea>                            
+                            </label>
+                        </div>
+                        <div class="flex">
+                            <label>
+                                <p class="message">Fecha Redención</p>
+                                <input required="" placeholder="" type="date" class="input" id="fechaPuntos" name="fechaPuntos">                                        
+                            </label>
+                            <label>
+                                <p class="message">Pts. a redimir</p>
+                                <input required="" placeholder="" type="number" class="input" id="puntosPuntos" max="0" name="puntosPuntos">
+                            </label>
+                        </div>
+                        <button id="puntosForm"class="submit">Redimir puntos</button>
+                    </form>
+                </div>
+                <!-- <div style="display: flex; justify-content: center; height: 100vh;">
+                    <p style="text-align: center;">Recuerda enviar el cupón <br>al cliente antes de guardar la factura</p>
+                </div> -->
+                
+            </div>
+            <div style="height: 50px;">
+                <h1></h1>
+            </div>
+        </aside>
+    </section>
+<!-- Your JavaScript code -->
+<!-- Agrega las librerías de JavaScript de Bootstrap y jQuery si aún no lo has hecho -->
+
+<!-- Tu código JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const idClientePuntos = document.getElementById('idClientePuntos');
+        const idVendedoraPuntos = document.getElementById('idVendedoraPuntos');
+        const facturaPuntos = document.getElementById('facturaPuntos');
+        const fechaPuntos = document.getElementById('fechaPuntos');
+        const puntosPuntos = document.getElementById('puntosPuntos');
+        const observacionesPuntos = document.getElementById('observacionesPuntos');
+        const puntosForm = document.getElementById('puntosForm');
+
+        idClientePuntos.addEventListener('input', async function(){
+            const id_cliente_p = idClientePuntos.value;            
+                // Realiza una llamada AJAX para buscar el id_cliente en la base de datos
+                fetch(`http://localhost:8000/api/cliente-puntos/${id_cliente_p}`)
+                .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.id_vendedora) {
+                            idVendedoraPuntos.value = data.id_vendedora;
+                            const factura_generada = generarFacturaPuntos(8);
+                            facturaPuntos.value = factura_generada;
+
+                        } else {
+                            idVendedoraPuntos.value = '';
+                            facturaPuntos.value = '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al buscar el id_vendedora:', error);
+                        id_vendedora_puntos.value = '';
+                        factura_puntos.value = '';
+                    });
+                });
+
+                function generarFacturaPuntos(longitud) {
+                const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let codigoPuntos = 'P-';
+
+                for (let i = 0; i < longitud; i++) {
+                    const indiceAleatorio = Math.floor(Math.random() * caracteres.length);
+                    codigoPuntos += caracteres.charAt(indiceAleatorio);
+                }
+                return codigoPuntos;
+            }
+                            // Tu código para obtener id_vendedora y generar n_factura
+        });
+
+        puntosForm.addEventListener('click', function () {
+            const cedula = idClientePuntos.value;
+            const idVendedoraValue = idVendedoraPuntos.value;
+            const nFactura = facturaPuntos.value;
+            const fechaFactura = fechaPuntos.value;
+            const puntos = puntosPuntos.value;
+            const observaciones = observacionesPuntos.value;
+
+            const redencionPuntos = {
+                n_factura: nFactura,
+                cedula: cedula,
+                id_vendedora: idVendedoraValue,
+                fechaFactura: fechaFactura,
+                puntos: puntos,
+                observaciones: observaciones
+            };
+
+            fetch('http://localhost:8000/api/redencion-puntos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(redencionPuntos)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al agregar la redención de puntos');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Redención de puntos agregada con éxito:', data);
+                // Puedes mostrar un mensaje de éxito al usuario aquí si lo deseas
+            })
+            .catch(error => {
+                console.error('Error al agregar la redención de puntos:', error);
+                // Puedes mostrar un mensaje de error al usuario aquí si lo deseas
+            });
+        });
+    
+</script>  
+
+
+<script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>   
+</body>
+</html>

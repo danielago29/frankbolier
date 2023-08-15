@@ -1,17 +1,3 @@
-async function obtenerClientes() {
-    const response = await fetch('http://localhost:8000/api/clients');
-    const data = await response.json();
-
-    const listaClientes = document.getElementById('clientes-lista');
-    listaClientes.innerHTML = '';
-
-    data.forEach(cliente => {
-        const li = document.createElement('li');
-        li.textContent = `${cliente.name} - ${cliente.email} - Puntos: ${cliente.points}`;
-        listaClientes.appendChild(li);
-    });
-}
-
 async function agregarCliente(event) {
     event.preventDefault();
 
@@ -42,53 +28,218 @@ async function agregarCliente(event) {
         body: JSON.stringify(nuevoCliente)
     });
 
-    form.reset();
-    obtenerClientes(); // Actualizar la lista de clientes después de agregar uno nuevo
+    form.reset();    
 }
 
 async function agregarFactura(event) {
     event.preventDefault();
 
     const form = event.target;
-    const cedula = form.elements[0].value;
-    const id_vendedora = form.elements[1].value;
-    const n_factura = form.elements[2].value;
-    const monto = form.elements[3].value;
-    const fechaFactura = form.elements[4].value;
-    const puntos = form.elements[5].value;
+    const cedula = form.elements.idClienteInput.value;
+    const id_vendedora = form.elements.idVendedoraInput.value;
+    const n_factura = form.elements.numeroFactura.value;
+    const monto = form.elements.valor_factura.value;
+    const fechaFactura = form.elements.fechaCrea.value;
+    const puntos = form.elements.puntos_calculo.value;
     const codigoCuponParrafo = document.getElementById('codigo-cupon');
     const cupon = codigoCuponParrafo.textContent;
     const vigencia_fecha = document.getElementById('fechaInput');
     const vigencia = vigencia_fecha.value;
-
-    
+    const observaciones = form.elements.observaciones.value;
 
     const nuevaFactura = {
         cedula: cedula,
         id_vendedora: id_vendedora,       
         n_factura: n_factura,
         monto: monto,
-        fechaFactura:fechaFactura,
+        fechaFactura: fechaFactura,
         puntos: puntos,
-        cupon:cupon,
-        vigencia: vigencia
-      
+        cupon: cupon,
+        vigencia: vigencia,
+        observaciones: observaciones
     };
 
-    await fetch('http://localhost:8000/api/facturas', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(nuevaFactura)
-    });
+    try {
+        const response = await fetch('http://localhost:8000/api/facturas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevaFactura)
+        });
 
-    form.reset();
-    bonoRecompraMensaje.style.display = 'none';
-    cuponCliente.textContent="";
-     
+        if (!response.ok) {
+            throw new Error('Error al agregar la factura');
+        }
+
+        form.reset();
+        bonoRecompraMensaje.style.display = 'none';
+        cuponCliente.textContent = "";
+    } catch (error) {
+        console.error('Error al agregar la factura:', error);
+        // Puedes mostrar un mensaje de error al usuario aquí si lo deseas
+    }
 }
-// Obtén referencias a los elementos de input
+
+
+/* async function redimirPuntosPagina (event){
+    event.preventDefault();
+    const cedula = id_cliente_p.value;
+    const id_vendedora_value = id_vendedora_p.value;
+    const n_factura = factura_p.value;
+    const fechaFactura = document.getElementById('fechaPuntos').value; // Cambiado
+    const puntos = document.getElementById('puntosPuntos').value; // Cambiado
+    const observaciones = document.getElementById('observacionesPuntos').value; // Cambiado
+
+
+    const redencionPuntos = {
+        n_factura: n_factura,
+        cedula: cedula,
+        id_vendedora: id_vendedora_value,
+        fechaFactura: fechaFactura,
+        puntos: puntos,
+        observaciones: observaciones
+    };
+    console.log("Valores del formulario obtenidos:", cedula, id_vendedora, n_factura, fechaFactura, puntos, observaciones);
+
+    try{
+        const result = await fetch ('http://localhost:8000/api/redencion-puntos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(redencionPuntos)
+        });
+        if (!result.ok) {
+            throw new Error('Error al agregar la redención de puntos');
+        }
+       
+        form.reset();       
+    
+    }catch(error){
+        console.error('Error al agregar la redención de puntos:', error);
+        // Puedes mostrar un mensaje de error al usuario aquí si lo deseas
+    }
+}  
+ */
+// En tu archivo main.js
+
+/* $(document).ready(function() {
+    console.log("Documento listo. Registrando evento...");
+    // Delegación de eventos para el botón dentro del modal
+    $(document).on('click', '#cuponForm', function() {
+        console.log("Botón 'Redimir cupon' clickeado");
+        
+        const formModal = document.getElementById('nuevo-factur-show'); // Cambiar por el ID real del formulario dentro del modal
+        
+        // Obtener los valores del formulario dentro del modal
+        const cedula = formModal.elements.idClienteShow.value;
+        const id_vendedora = formModal.elements.idVendedoraShow.value;
+        const n_factura = formModal.elements.facturaShow.value;
+        const monto = formModal.elements.valorShow.value;
+        const fechaFactura = formModal.elements.fechaShow.value;
+        const puntos = formModal.elements.puntosShow.value;
+        const cupon = "N/A";
+        const vigencia = "0000-00-00"; // Cambiar el formato de la fecha
+        const observaciones = formModal.elements.observacionesShow.value;
+        
+        console.log("Valores obtenidos del formulario:");
+        console.log("Cédula:", cedula);
+        console.log("Id Vendedora:", id_vendedora);
+        console.log("N° Factura:", n_factura);
+        console.log("Monto:", monto);
+        console.log("Fecha Factura:", fechaFactura);
+        console.log("Puntos:", puntos);
+        console.log("Cupon:", cupon);
+        console.log("Vigencia:", vigencia);
+        console.log("Observaciones:", observaciones);
+        
+        const cuponRedimido = {
+            cedula: cedula,
+            id_vendedora: id_vendedora,       
+            n_factura: n_factura,
+            monto: monto,
+            fechaFactura: fechaFactura,
+            puntos: puntos,
+            cupon: cupon,
+            vigencia: vigencia,
+            observaciones: observaciones
+        };
+        
+        // Realizar la solicitud de envío a la base de datos
+        fetch('http://localhost:8000/api/facturas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cuponRedimido)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al agregar la factura');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Factura agregada con éxito:', data);
+            // Puedes mostrar un mensaje de éxito al usuario aquí si lo deseas
+            $('#putCliente').modal('hide');
+        })
+        .catch(error => {
+            console.error('Error al agregar la factura:', error);
+            // Puedes mostrar un mensaje de error al usuario aquí si lo deseas
+        });
+    });
+});
+
+ */
+/* async function redimirPuntos(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const cedula = form.elements.idClienteShow.value;
+    const id_vendedora = form.elements.idVendedoraShow.value;
+    const n_factura = form.elements.facturaShow.value;
+    const monto = form.elements.valorShow.value;
+    const fechaFactura = form.elements.fechaShow.value;
+    const puntos = form.elements.puntosShow.value;
+    const cupon = "N/A";
+    const vigencia = "00/00/0000";
+    const observaciones = form.elements.observacionesShow.value;
+
+    const cuponRedimido = {
+        cedula: cedula,
+        id_vendedora: id_vendedora,       
+        n_factura: n_factura,
+        monto: monto,
+        fechaFactura: fechaFactura,
+        puntos: puntos,
+        cupon: cupon,
+        vigencia: vigencia,
+        observaciones: observaciones
+    };
+    console.log("Datos a enviar:", cuponRedimido);
+
+    try {
+        const response = await fetch('http://localhost:8000/api/facturas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cuponRedimido)
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al redimir puntos');
+        }
+
+        form.reset();    
+    } catch (error) {
+        console.error('Error al redimir puntos:', error);
+        // Puedes mostrar un mensaje de error al usuario aquí si lo deseas
+    }
+}
+ */// Obtén referencias a los elementos de input
 const idClienteInput = document.getElementById('idClienteInput');
 const idVendedoraInput = document.getElementById('idVendedoraInput');
 const puntosClienteInput = document.getElementById('puntosClienteInput');
@@ -200,7 +351,58 @@ idClienteExiste.addEventListener('input', async function() {
         clienteExisteMensaje.style.display = 'none'; // Oculta el mensaje si no hay valor en el input
     }
 });
+const id_cliente_p = document.getElementById('idClientePuntos');
+const id_vendedora_p = document.getElementById('idVendedoraPuntos');
+const factura_p = document.getElementById('facturaPuntos');
 
+/*id_cliente_puntos.addEventListener('input', async function(){
+    console.log("Evento input en idClientePuntos disparado"); 
+    const id_cliente_p = id_cliente_puntos.value;
+    console.log("ID Cliente ingresado:", id_cliente_p); 
+
+    console.log("ID Cliente:", id_cliente_p); // Punto de control
+    
+    // Realiza una llamada AJAX para buscar el id_cliente en la base de datos
+    fetch(`http://localhost:8000/api/cliente-puntos/${id_cliente_p}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Valor del ID Vendedora:", data.id_vendedora);
+
+        if (data && data.id_vendedora) {
+            id_vendedora_puntos.value = data.id_vendedora;
+            const factura_generada = generarFacturaPuntos(8);
+            factura_puntos.value = factura_generada;
+
+        } else {
+            id_vendedora_puntos.value = '';
+            factura_puntos.value = '';
+        }
+    })
+    .catch(error => {
+        console.error('Error al buscar el id_vendedora:', error);
+        id_vendedora_puntos.value = '';
+        factura_puntos.value = '';
+    });
+});
+
+function generarFacturaPuntos(longitud) {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let codigoPuntos = 'P-';
+
+    for (let i = 0; i < longitud; i++) {
+        const indiceAleatorio = Math.floor(Math.random() * caracteres.length);
+        codigoPuntos += caracteres.charAt(indiceAleatorio);
+    }
+
+    return codigoPuntos;
+}
+
+ */
 function generarCodigoCupon(longitud) {
     const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let codigoCupon = '';
@@ -233,12 +435,13 @@ function llenarFecha() {
     var fechaFormateada = año + '-' + mes + '-' + dia;
     document.getElementById('fechaInput').value = fechaFormateada;
   }
-  
 
 
-window.addEventListener('load', obtenerClientes);
 
 const formNuevoCliente = document.getElementById('nuevo-cliente-form');
 const formNuevaFactura = document.getElementById('nuevo-factura-form');
+const formCuponRedimido = document.getElementById('nuevo-factur-show');
+
 formNuevoCliente.addEventListener('submit', agregarCliente); 
-formNuevaFactura.addEventListener('submit', agregarFactura);   
+formNuevaFactura.addEventListener('submit', agregarFactura); 
+
