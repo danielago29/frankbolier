@@ -73,7 +73,7 @@
                             </label>
                             <label>
                                 <p class="message">Pts. a redimir</p>
-                                <input required="" placeholder="" type="number" class="input" id="puntosPuntos" max="0" name="puntosPuntos">
+                                <input required="" placeholder="" type="number" class="input" id="puntosPuntos" min="0" name="puntosPuntos">
                             </label>
                         </div>
                         <button id="puntosForm"class="submit">Redimir puntos</button>
@@ -175,7 +175,7 @@
             const idVendedoraValue = idVendedoraPuntos.value;
             const nFactura = facturaPuntos.value;
             const fechaFactura = fechaPuntos.value;
-            const puntos = puntosPuntos.value;
+            const puntos = -puntosPuntos.value;
             const observaciones = observacionesPuntos.value;
 
             const redencionPuntos = {
