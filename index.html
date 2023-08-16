@@ -102,12 +102,16 @@
                             <div class="form">
                                 <label>
                                     <input required="" placeholder="" type="text" class="input" id="cupon_redimido">
-                                    <span>Ingrese aquí el cupón a redimir</span>                                        
-                                </label>
+                                    <span>Ingrese aquí el cupón a redimir</span> 
+                                    <div class="message-checkbox">
+                                        <input type="checkbox" id="verificar" name="actualizarFecha">Verificar Estado</input>
+                                    </div>                                                                          
+                                </label>                                 
                             </div>
+                            <h3 class="message" id="estadoCupon" style="display:none; color: white;"></h3>
                             <div class="boton">
                                 <button id="btnIngresarPuntos">
-                                    <span id="cupon_redimido" class="button_top"> Redimir Cupon
+                                    <span class="button_top"> Redimir Cupon
                                     </span>
                                 </button>   
                             </div>
@@ -123,35 +127,60 @@
     document.addEventListener('DOMContentLoaded', function () {
     var myModalButton = document.querySelector('#btnIngresarPuntos');
     var cuponRedimidoInput = document.getElementById('cupon_redimido');
+    const estadoCuponDiv = document.getElementById('estadoCupon');
+    const verificar = document.getElementById('verificar')
+
+    verificar.addEventListener('change', function () {
+        const cupon_value = cuponRedimidoInput.value;
     
+        if (verificar.checked) {
+        fetch(`http://localhost:8000/api/cupones/info/${cupon_value}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.vigencia_cupon) {
+                    const fechaVigenciaCupon = new Date(data.vigencia_cupon);
+                    const fechaHoy = new Date();
+
+                    if (fechaVigenciaCupon >= fechaHoy) {
+                        estadoCuponDiv.textContent = 'Cupon Vigente';
+                        estadoCuponDiv.style.display = 'block';
+
+                    } else {
+                        estadoCuponDiv.textContent = 'Cupon Caducado';
+                        estadoCuponDiv.style.display = 'block';
+                    }
+                } else {
+                    estadoCuponDiv.textContent = 'Cupón no encontrado';
+                    estadoCuponDiv.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error al obtener la información del cupón:', error);
+                estadoCuponDiv.textContent = 'Error al obtener la información del cupón';
+            });
+        }
+    });
+
 
     // Obtén el valor del cupón redimido de la URL
     var urlParams = new URLSearchParams(window.location.search);
-    var facturaShowValue = urlParams.get('facturaShowValue');
+    var cuponShowValue = urlParams.get('cuponShowValue');
     
-    if (facturaShowValue) {
-        cuponRedimidoInput.value = facturaShowValue;
+    if (cuponShowValue) {
+        cuponRedimidoInput.value = cuponShowValue;       
         
-        // Simula manualmente el evento de cambio en el input
-        var event = new Event('input', {
-            bubbles: true,
-            cancelable: true,
-        });
-        
-        cuponRedimidoInput.dispatchEvent(event);
     }
+    myModalButton.addEventListener('click', function (event) {
+    event.preventDefault(); // Previene el comportamiento predeterminado del enlace
+    var cuponRedimido = cuponRedimidoInput.value;
+    
+    // Construye la URL con el parámetro
+    var queryParams = new URLSearchParams({
+        cuponShowValue: cuponRedimido
+    });
 
-        myModalButton.addEventListener('click', function (event) {
-        event.preventDefault(); // Previene el comportamiento predeterminado del enlace
-        var cuponRedimido = document.getElementById('cupon_redimido').value;
-        
-        // Construye la URL con el parámetro
-        var queryParams = new URLSearchParams({
-            facturaShowValue: cuponRedimido
-        });
-
-        // Redirige a la otra página con el parámetro en la URL
-        window.location.href = 'cupones.html?' + queryParams.toString();
+    // Redirige a la otra página con el parámetro en la URL
+    window.location.href = 'cupones.html?' + queryParams.toString();
     }); 
     
 });

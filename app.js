@@ -89,10 +89,10 @@
 
     // Ruta para agregar una nueva factura
     app.post('/api/facturas', (req, res) => {
-        const { n_factura,cedula,id_vendedora,monto,fechaFactura,puntos,cupon,vigencia,observaciones} = req.body;
+        const { n_factura,cedula,id_vendedora,monto,fechaFactura,puntos,cupon,montoCupon,vigencia,observaciones} = req.body;
 
-        const sql = 'INSERT INTO factura (id_factura,id_cliente,id_vendedora,monto,fecha_crea,puntos,cupon,vigencia_cupon,observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        const values = [n_factura,cedula,id_vendedora,monto,fechaFactura,puntos,cupon|| null,vigencia|| null,observaciones|| null];
+        const sql = 'INSERT INTO factura (id_factura,id_cliente,id_vendedora,monto,fecha_crea,puntos,cupon,monto_cupon,vigencia_cupon,observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const values = [n_factura,cedula,id_vendedora,monto,fechaFactura,puntos,cupon|| null, montoCupon|| null,vigencia|| null,observaciones|| null];
 
         connection.query(sql, values, (error, results) => {
             if (error) {
@@ -125,35 +125,65 @@
             }
         });
     });
+    // Ruta para obtener la información del cupón por su número de cupón
+app.get('/api/cupones/info/:cupon', (req, res) => {
+    const cupon = req.params.cupon;
+
+    // Realiza una consulta a la base de datos para obtener la información del cupón
+    const sql = 'SELECT vigencia_cupon FROM factura WHERE cupon = ?';
+    connection.query(sql, [cupon], (error, results) => {
+        if (error) {
+            console.error('Error al buscar la información del cupón:', error);
+            res.status(500).json({ message: 'Error al buscar la información del cupón' });
+        } else {
+            if (results.length > 0) {
+                const vigenciaCupon = results[0].vigencia_cupon || null; // Cambia esto al nombre real del campo en tu tabla
+                res.status(200).json({ vigencia_cupon: vigenciaCupon });
+            } else {
+                res.status(404).json({ message: 'Cupón no encontrado' });
+            }
+        }
+    });
+});
 
     // Ruta para obtener el cupon a redimir de las facturas de un cliente por su cupon
-    app.get('/api/cupones/:cupon', (req, res) => {
-        const cupon = req.params.cupon;
-
-        // Realiza una consulta a la base de datos para obtener el cupon y el id_cliente de la factura
-        const sql = 'SELECT cupon, id_cliente, id_vendedora FROM factura WHERE cupon = ?';
-        connection.query(sql, [cupon], (error, results) => {
-            if (error) {
-                console.error('Error al buscar el cupon:', error);
-                res.status(500).json({ message: 'Error al buscar el cupon' });
+app.get('/api/cupones/:cupon', (req, res) => {
+    const cupon = req.params.cupon;
+        
+        // Realiza una consulta a la base de datos para obtener el cupon, el id_cliente, el id_vendedora y el monto_cupon de la factura
+    const sql = 'SELECT cupon, id_cliente, id_vendedora, monto_cupon,id_factura FROM factura WHERE cupon = ?';
+    connection.query(sql, [cupon], (error, results) => {
+        if (error) {
+            console.error('Error al buscar el cupon:', error);
+            res.status(500).json({ message: 'Error al buscar el cupon' });
+        } else {
+            if (results.length > 0) {
+                const cupon_generado = results[0].cupon;
+                const id_cliente = results[0].id_cliente;
+                const id_vendedora = results[0].id_vendedora;
+                const cupon_monto = results[0].monto_cupon;
+                const id_factura  = results[0].id_factura;
+                // Agregado: Obtener el monto del cupón
+                res.status(200).json({
+                    cupon: cupon_generado,
+                    id_cliente: id_cliente,
+                    id_vendedora: id_vendedora,
+                    monto_cupon: cupon_monto, // Devolver el monto del cupón
+                    id_factura: id_factura
+                });
             } else {
-                if (results.length > 0) {
-                    const cupon_generado = results[0].cupon;
-                    const id_cliente = results[0].id_cliente; // Obtén el id_cliente de la factura
-                    const id_vendedora = results[0].id_vendedora;
-                    res.status(200).json({ cupon: cupon_generado, id_cliente: id_cliente, id_vendedora: id_vendedora }); // Devuelve ambos datos
-                } else {
-                    res.status(404).json({ message: 'Cupon no encontrado' });
-                }
+                res.status(404).json({ message: 'Cupon no encontrado' });
             }
-        });
+        }
     });
+    
+ });
     // Ruta para agregar una redención de cupón
     app.post('/api/redencion-cupon', (req, res) => {
-        const { n_factura, cedula, id_vendedora, fechaFactura, puntos, observaciones } = req.body;
+        const { n_factura,cedula,id_vendedora,monto,fechaFactura,puntos,montoCupon,cupon,observaciones } = req.body;
 
-        const sql = 'INSERT INTO factura (id_factura, id_cliente, id_vendedora, monto, fecha_crea, puntos, cupon, vigencia_cupon, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        const values = [n_factura, cedula, id_vendedora, 0, fechaFactura, puntos, 'N/A', null , observaciones || null];
+        const sql = 'INSERT INTO factura (id_factura, id_cliente, id_vendedora, monto, fecha_crea, puntos, monto_cupon, cupon, vigencia_cupon, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const values = [n_factura, cedula, id_vendedora, monto, fechaFactura, puntos, montoCupon,cupon, null , observaciones || null];
 
         connection.query(sql, values, (error, results) => {
             if (error) {
@@ -161,16 +191,54 @@
                 res.status(500).json({ message: 'Error al agregar la redención de cupón' });
             } else {
                 console.log('Redención de cupón agregada con éxito');
-                res.status(201).json({ id: results.insertId, n_factura, cedula, id_vendedora, fechaFactura, puntos, observaciones });
+                res.status(201).json({ id: results.insertId, n_factura,cedula,id_vendedora,monto,fechaFactura,puntos,montoCupon,cupon,observaciones });
             }
         });
     });
+
+    // Ruta para obtener la factura original asociada a un cupón
+app.get('/api/obtener-factura-por-cupon/:cupon', (req, res) => {
+    const cupon = req.params.cupon;
+
+    // Realiza una consulta a la base de datos para obtener la factura original asociada al cupón
+    const sql = 'SELECT id_factura FROM factura WHERE cupon = ?';
+    connection.query(sql, [cupon], (error, results) => {
+        if (error) {
+            console.error('Error al buscar la factura original por cupón:', error);
+            res.status(500).json({ message: 'Error al buscar la factura original por cupón' });
+        } else {
+            if (results.length > 0) {
+                const idFacturaOriginal = results[0].id_factura;
+                res.status(200).json({ id_factura: idFacturaOriginal });
+            } else {
+                res.status(404).json({ message: 'Factura original no encontrada' });
+            }
+        }
+    });
+});
+    // Ruta para actualizar la vigencia de una factura
+app.put('/api/actualizar-vigencia-cupon/:idFactura', (req, res) => {
+    const idFactura = req.params.idFactura;
+    const nuevaFechaVigencia = req.body.vigencia_cupon;
+
+    // Realizar la consulta para actualizar la fecha de vigencia en la base de datos
+    const sql = 'UPDATE factura SET vigencia_cupon = ? WHERE id_factura = ?';
+    connection.query(sql, [nuevaFechaVigencia, idFactura], (error, results) => {
+        if (error) {
+            console.error('Error al actualizar la fecha de vigencia del cupón:', error);
+            res.status(500).json({ message: 'Error al actualizar la fecha de vigencia del cupón' });
+        } else {
+            res.status(200).json({ message: 'Fecha de vigencia del cupón actualizada con éxito' });
+        }
+    });
+});
+
     // Ruta para agregar una redención de puntos
     app.post('/api/redencion-puntos', (req, res) => {
         const { n_factura, cedula, id_vendedora, fechaFactura, puntos, observaciones } = req.body;
 
-        const sql = 'INSERT INTO factura (id_factura, id_cliente, id_vendedora, monto, fecha_crea, puntos, cupon, vigencia_cupon, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        const values = [n_factura, cedula, id_vendedora, 0, fechaFactura, puntos, 'N/A', null , observaciones || null];
+        const sql = 'INSERT INTO factura (id_factura, id_cliente, id_vendedora, monto, fecha_crea, puntos,monto_cupon, cupon, vigencia_cupon, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const values = [n_factura, cedula, id_vendedora, 0, fechaFactura, puntos, 0 , 'N/A', null , observaciones || null];
 
         connection.query(sql, values, (error, results) => {
             if (error) {

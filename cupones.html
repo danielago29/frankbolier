@@ -26,11 +26,12 @@
         <!-- Bloque derecho -->
         <aside class="col-md-12 d-flex flex-column" style=" justify-content: center;height: 400px;width: 100%;">
             <!-- Div derecho principal -->
-            <div class="derecho-principal d-grid p-5" style="height: 750px;justify-content: center; background-color: rgba(209, 148, 148, 0.6); border-radius: 2em;">
+            <div class="derecho-principal d-grid p-5" style="height: 800px;justify-content: center; background-color: rgba(209, 148, 148, 0.6); border-radius: 2em;">
                 <!-- Contenido del div derecho-principal -->
                 <div class="form-container d-flex justify-content-center align-items-center">
                     <form class="form" id="nuevo-factur-show">
-                        <p class="title">Redención de cupon</p>
+                        <p class="title">Redención de cupon</p> 
+                        <input style="display: none;"required="" placeholder="" type="text" class="input" id="idFacturaAnterior" name="idFacturaAnterior">                                                                            
                         <div class="flex">
                             <label>
                                 <p class="message">Cédula del cliente</p> 
@@ -44,14 +45,29 @@
                         </div>
                         <div class="flex">
                             <label>
-                                <p class="message">N° Cupon</p>
+                                <p class="message">N°Cupon</p>
+                                <input required="" placeholder="" class="input" id="cuponShow" name="cuponShow" style="width: 155px" type="text"></input>                            
+                            </label>
+                            <label>
+                                <p class="message">Monto Cupon</p>
+                                <input required="" placeholder="" class="input" id="monto_cupon_show" name="monto_cupon_show" style="width: 135px;" type="number"></input>                            
+                            </label>
+                        </div>
+                        <div class="flex">
+                            <label>
+                                <p class="message">N° Factura</p>
                                 <input required="" placeholder="" type="text" class="input" id="facturaShow" name="facturaShow">
                                 
                             </label>
                             <label>
-                                <p class="message">Valor Factura</p>
+                                <p class="message">Valor con %</p>
                                 <input required="" placeholder="" type="number" class="input" id="valorShow" value="0" readonly name="valorShow">                            
-                            </label>                        
+                            </label>                                
+                            <label>
+                                <p class="message">Valor sin %</p>
+                                <input required="" placeholder="" type="number" class="input" id="valorShow_original" value="0" name="valorShow_original">                            
+                            </label> 
+                                                
                         </div>
                         <div class="flex">
                             <label>
@@ -59,16 +75,18 @@
                                 <textarea required="" placeholder="" class="input" id="observacionesShow" name="observacionesShow" style="width: 310px;"></textarea>                            
                             </label>
                         </div>
-                        <div class="flex">
-                            <label>
-                                <p class="message">Fecha Redención</p>
-                                <input required="" placeholder="" type="date" class="input" id="fechaShow" name="fechaShow">                                        
+                        <div class="flex" style="align-items: flex-end;">
+                            <label>                                
+                                <div class="message-checkbox">
+                                    <input type="checkbox" id="actualizarFecha" name="actualizarFecha">Caducar</input>
+                                </div>
+                                <input required="" placeholder="" type="date" class="input" id="fechaShow" name="fechaShow">
                             </label>
                             <label>
-                                <p class="message">Pts. a redimir</p>
-                                <input required="" placeholder="" type="number" class="input" id="puntosShow" max="0" name="puntosShow">
+                                <button id="puntosBoton" style="height: 30px; background-color: rgba(209, 148, 148, 0.6); width: 90px;" class="message m-2">Pts.</button>
+                                <input required="" placeholder="" type="number" class="input" id="puntosShow"  name="puntosShow">
                             </label>
-                        </div>
+                        </div>                        
                         <button id="cuponForm"class="submit">Redimir cupon</button>
                     </form>
                 </div>
@@ -89,74 +107,169 @@
 <script>  
 
 document.addEventListener('DOMContentLoaded', function () {
-    var urlParams = new URLSearchParams(window.location.search);
-    var facturaShowValue = urlParams.get('facturaShowValue');
-    
-    if (facturaShowValue) {
-        var facturaShowInput = document.getElementById('facturaShow');
-        facturaShowInput.value = facturaShowValue;
-    }
-});
-const id_cliente_show = document.getElementById('idClienteShow');
-const id_vendedora = document.getElementById('idVendedoraShow');
-const factura_show = document.getElementById('facturaShow');
-const cuponFormButton = document.getElementById('cuponForm'); // Agregado
+            var cuponShowInput = document.getElementById('cuponShow');
 
-factura_show.addEventListener('input', function(){
-    console.log("Evento de cambio de factura activado.");
-    var cupon_value = factura_show.value;
-    console.log("Valor de cupon_value:", cupon_value);
-    // Realiza una llamada AJAX para buscar el id_cliente en la base de datos
-    fetch(`http://localhost:8000/api/cupones/${cupon_value}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            // Obtén el valor del cupón redimido de la URL
+            var urlParams = new URLSearchParams(window.location.search);
+            var cuponShowValue = urlParams.get('cuponShowValue');
+            
+            if (cuponShowValue) {
+                const cuponShowInput = document.getElementById('cuponShow');
+                cuponShowInput.value = cuponShowValue;
+
+                var event = new Event('input', {
+                    bubbles: true,
+                    cancelable: true,
+            });
+            cuponShowInput.dispatchEvent(event);
+
             }
-            return response.json();
-        })
-        .then(data => {
-            if (data && data.cupon) {
-                if (data.id_cliente) {
-                    id_cliente_show.value = data.id_cliente;
-                    factura_show.value = data.cupon;
-                    id_vendedora.value = data.id_vendedora;
-                } else {
-                    id_cliente_show.value = '';
-                    factura_show.value = data.cupon;
-                    id_vendedora.value = data.id_vendedora;
-                }
-            } else {
-                id_cliente_show.value = '';
-                factura_show.value = '';
-                id_vendedora.value = '';
-            }
-        })
-        .catch(error => {
-            console.error('Error al buscar el cupon:', error);
-            id_cliente_show.value = '';
         });
 
+        const id_cliente_show = document.getElementById('idClienteShow');
+        const id_vendedora = document.getElementById('idVendedoraShow');
+        const cuponShow = document.getElementById('cuponShow');
+        const factura_show = document.getElementById('facturaShow');
+        const valor_original_show = document.getElementById('valorShow_original');
+        const monto_show = document.getElementById('valorShow');
+        const puntosShowInput = document.getElementById('puntosShow');
+        const montoCuponShow = document.getElementById('monto_cupon_show')
+        const cuponFormButton = document.getElementById('cuponForm'); // Agregado
+        const botonPuntos = document.getElementById('puntosBoton');
+        const original = document.getElementById('idFacturaAnterior')
 
-})
+        cuponShow.addEventListener('input', function(){
+            console.log("Evento de cambio de factura activado.");
+            var cupon_value = cuponShow.value;
+            console.log("Valor de cupon_value:", cupon_value);
+
+            // Realiza una llamada AJAX para buscar el id_cliente en la base de datos
+            fetch(`http://localhost:8000/api/cupones/${cupon_value}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.cupon) {
+                            id_cliente_show.value = data.id_cliente;                
+                            id_vendedora.value = data.id_vendedora;
+                            montoCuponShow.value = data.monto_cupon;
+                            original.value = data.id_factura;
+                            
+                        } else {
+                            id_cliente_show.value = '';                
+                            id_vendedora.value = '';
+                            montoCuponShow.value = '';
+                            original.value = '';
+                            
+                        }                    
+                })
+                .catch(error => {
+                    console.error('Error al buscar el cupon:', error);
+                    id_cliente_show.value = '';
+                });
+
+
+});
+
+// Escucha el evento de cambio en el campo de factura original
+valor_original_show.addEventListener('input', function () {
+    const valorOriginal = parseFloat(valor_original_show.value);
+    const montoCupon = parseFloat(montoCuponShow.value);
+
+    if (!isNaN(valorOriginal) && !isNaN(montoCupon)) {
+        const nuevoValor = valorOriginal - montoCupon;
+        monto_show.value = nuevoValor;
+    } else {
+        monto_show.value = valor_original_show.value;
+    }
+});
+function calcularYActualizarPuntos() {
+    console.log("Función calcularYActualizarPuntos llamada."); // Agregado
+    const valorRestante = monto_show.value;
+    const puntosGanados = (valorRestante / 1000) * 2;
+
+    if (!isNaN(puntosGanados)) {
+        puntosShowInput.value = puntosGanados;
+    } else {
+        puntosShowInput.value = '';
+    }
+}
+botonPuntos.addEventListener('click', function () {
+    event.preventDefault();
+    console.log("Evento de cambio en el campo monto_show activado."); // Agregado
+    calcularYActualizarPuntos();
+});
+
+// Escucha el evento de cambio en el checkbox
+const actualizarFechaCheckbox = document.getElementById('actualizarFecha');
+
+actualizarFechaCheckbox.addEventListener('change', function() {
+    const fechaRedencionInput = document.getElementById('fechaShow');
+    const cuponValue = cuponShow.value; // Valor del cupón ingresado
+    const nuevaFechaVigencia = fechaRedencionInput.value;
+
+    if (actualizarFechaCheckbox.checked) {
+        // Obtener la factura original asociada al cupón
+        fetch(`http://localhost:8000/api/obtener-factura-por-cupon/${cuponValue}`)
+            .then(response => response.json())
+            .then(facturaData => {
+                console.log('Factura obtenida con éxito:', facturaData);
+
+                const idFacturaOriginal = facturaData.id_factura; // ID de la factura original
+
+                // Realizar una solicitud PUT para actualizar la vigencia de la factura original
+                fetch(`http://localhost:8000/api/actualizar-vigencia-cupon/${idFacturaOriginal}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ vigencia_cupon: nuevaFechaVigencia })
+                })
+                .then(response => response.json())
+                .then(updateData => {
+                    console.log('Fecha de vigencia de cupón actualizada con éxito:', updateData);
+                    // Puedes mostrar un mensaje de éxito al usuario aquí si lo deseas
+                })
+                .catch(error => {
+                    console.error('Error al actualizar la fecha de vigencia del cupón:', error);
+                    // Puedes mostrar un mensaje de error al usuario aquí si lo deseas
+                });
+            })
+            .catch(error => {
+                console.error('Error al obtener la factura asociada al cupón:', error);
+                // Puedes mostrar un mensaje de error al usuario aquí si lo deseas
+            });
+    }
+});
+
 
 // Evento para redimir cupón
 cuponFormButton.addEventListener('click', function () {
     const cedula = id_cliente_show.value;
     const id_vendedora_value = id_vendedora.value;
+    const monto = monto_show.value;
     const n_factura = factura_show.value;
+    const montoCupon = montoCuponShow.value;
     const fechaFactura = document.getElementById('fechaShow').value; // Cambiado
     const puntos = document.getElementById('puntosShow').value; // Cambiado
     const observaciones = document.getElementById('observacionesShow').value; // Cambiado
+    const cupon = original.value;
 
     const redencionCupon = {
         n_factura: n_factura,
         cedula: cedula,
         id_vendedora: id_vendedora_value,
+        monto: monto,
+        cupon:cupon,
+        montoCupon:montoCupon,
         fechaFactura: fechaFactura,
         puntos: puntos,
         observaciones: observaciones
     };
-    console.log("Valores del formulario obtenidos:", cedula, id_vendedora, n_factura, fechaFactura, puntos, observaciones);
+    console.log("Valores del formulario obtenidos:", cedula, id_vendedora, n_factura, monto,cupon, montoCupon, puntos, observaciones);
 
     // Realizar la solicitud de envío a la base de datos para la redención de cupón
     fetch('http://localhost:8000/api/redencion-cupon', {
@@ -174,7 +287,6 @@ cuponFormButton.addEventListener('click', function () {
     })
     .then(data => {
         console.log('Redención de cupón agregada con éxito:', data);
-        // Puedes mostrar un mensaje de éxito al usuario aquí si lo deseas
         
     })
     .catch(error => {

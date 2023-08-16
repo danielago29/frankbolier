@@ -39,6 +39,8 @@ async function agregarFactura(event) {
     const id_vendedora = form.elements.idVendedoraInput.value;
     const n_factura = form.elements.numeroFactura.value;
     const monto = form.elements.valor_factura.value;
+    const cupon_form = document.getElementById('montoCupon');
+    const montoCupon = cupon_form.value;
     const fechaFactura = form.elements.fechaCrea.value;
     const puntos = form.elements.puntos_calculo.value;
     const codigoCuponParrafo = document.getElementById('codigo-cupon');
@@ -55,6 +57,7 @@ async function agregarFactura(event) {
         fechaFactura: fechaFactura,
         puntos: puntos,
         cupon: cupon,
+        montoCupon: montoCupon,
         vigencia: vigencia,
         observaciones: observaciones
     };
@@ -75,6 +78,8 @@ async function agregarFactura(event) {
         form.reset();
         bonoRecompraMensaje.style.display = 'none';
         cuponCliente.textContent = "";
+        cuponMonto.value = "";
+
     } catch (error) {
         console.error('Error al agregar la factura:', error);
         // Puedes mostrar un mensaje de error al usuario aquí si lo deseas
@@ -298,6 +303,7 @@ idClienteInput.addEventListener('input', async function() {
 const montoInput = document.getElementById('valor_factura');
 const bonoRecompraMensaje = document.getElementById('bonoRecompra');
 const cuponCliente = document.getElementById('codigo-cupon');
+const cuponMonto = document.getElementById('montoCupon');
 
 // Evento que se activa cuando cambia el valor del input de monto
 montoInput.addEventListener('input', function() {
@@ -307,12 +313,14 @@ montoInput.addEventListener('input', function() {
         if (monto >= 200000 && monto < 400000) {
             bonoRecompraMensaje.textContent = 'El cliente tiene un bono - re compra de $50.000';
             bonoRecompraMensaje.style.display = 'block'; // Muestra el mensaje
+            cuponMonto.value = 50000
             cuponGenerado = generarCodigoCupon(8);
             llenarFecha();
             cuponCliente.textContent = cuponGenerado;
         } else if (monto >= 400000) {
             bonoRecompraMensaje.textContent = 'El cliente tiene un bono - re compra de $100.000';
             bonoRecompraMensaje.style.display = 'block'; // Muestra el mensaje
+            cuponMonto.value = 100000
             cuponGenerado = generarCodigoCupon(8);
             llenarFecha();
             cuponCliente.textContent = cuponGenerado;

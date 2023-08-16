@@ -34,6 +34,12 @@
                         <p class="title">Redención de puntos</p>
                         <div class="flex">
                             <label>
+                                <p class="message">Puntos acumulados</p>
+                                <input required="" placeholder="" class="input" id="puntosAcumulados" name="puntosAcumulados" style="width: 155px;" type="number" readonly></input>                            
+                            </label>
+                        </div> 
+                        <div class="flex">
+                            <label>
                                 <p class="message">Cédula del cliente</p> 
                                 <input required="" placeholder="" type="text" class="input" id="idClientePuntos" name="idClientePuntos">
                                                                        
@@ -96,6 +102,7 @@
         const puntosPuntos = document.getElementById('puntosPuntos');
         const observacionesPuntos = document.getElementById('observacionesPuntos');
         const puntosForm = document.getElementById('puntosForm');
+        const puntosAcumulados =document.getElementById('puntosAcumulados');
 
         idClientePuntos.addEventListener('input', async function(){
             const id_cliente_p = idClientePuntos.value;            
@@ -135,6 +142,31 @@
                 }
                 return codigoPuntos;
             }
+            
+            idClientePuntos.addEventListener('input', async function() {
+                const idClienteShow = idClientePuntos.value;
+
+                if (idClienteShow) {
+                    try {
+                        const response = await fetch(`http://localhost:8000/api/facturas/${idClienteShow}`);
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        const data = await response.json();
+
+                        if (data && data.suma_puntos !== undefined) {
+                            puntosAcumulados.value = data.suma_puntos;
+                        } else {
+                            puntosAcumulados.value = 'No se encontraron puntos';
+                        }
+                    } catch (error) {
+                        console.error('Error al obtener la sumatoria de puntos:', error);
+                        puntosAcumulados.value = 'Error al obtener puntos';
+                    }
+                } else {
+                    puntosAcumulados.value = 'Ingrese un ID de cliente';
+                }
+            });
                             // Tu código para obtener id_vendedora y generar n_factura
         });
 
@@ -177,7 +209,6 @@
                 // Puedes mostrar un mensaje de error al usuario aquí si lo deseas
             });
         });
-    
 </script>  
 
 
