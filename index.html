@@ -55,14 +55,14 @@
                             <h1 style="color: #333333;">Ver historial de un cliente</h1>
                         </div>
                         <label class="form">
-                            <input id="info_cliente" required="" placeholder="N° Cédula" type="email" class="input">
+                            <input id="info_cliente"  required="" placeholder="N° Cédula" type="email" class="input" name="idCliente">
                         </label>
                         <div style="height: 10px;">
                             <h1></h1>
                         </div>                       
 
                         <div class="boton">
-                            <button>
+                            <button type="submit" id="buscar-cliente">
                                 <span class="button_top"> Buscar
                                 </span>
                             </button>                        
@@ -129,6 +129,7 @@
     var cuponRedimidoInput = document.getElementById('cupon_redimido');
     const estadoCuponDiv = document.getElementById('estadoCupon');
     const verificar = document.getElementById('verificar')
+    const idCliente = document.getElementById("info_cliente").value;
 
     verificar.addEventListener('change', function () {
         const cupon_value = cuponRedimidoInput.value;
@@ -182,6 +183,17 @@
     // Redirige a la otra página con el parámetro en la URL
     window.location.href = 'cupones.html?' + queryParams.toString();
     }); 
+
+    const buscarClienteButton = document.getElementById("buscar-cliente");
+    buscarClienteButton.addEventListener("click", async (event) => {
+        event.preventDefault();
+
+        // Obtén el valor del campo info_cliente
+        const idCliente = document.getElementById("info_cliente").value;
+
+        // Redirige a la otra página con el parámetro idCliente en la URL
+        window.location.href = `info.html?idCliente=${idCliente}`;
+    });
     
 });
 

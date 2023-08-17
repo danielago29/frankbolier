@@ -250,10 +250,57 @@ app.put('/api/actualizar-vigencia-cupon/:idFactura', (req, res) => {
             }
         });
     });
+    // Ruta para obtener información según el idCliente
+app.get('/api/obtener-info/:idCliente', (req, res) => {
+    const idCliente = req.params.idCliente;
 
+    // Realiza consultas a la base de datos para obtener diferentes tipos de información
+    const sqlFacturas = 'SELECT id_factura, monto, fecha_crea, puntos, observaciones FROM factura WHERE id_cliente = ? AND NOT id_factura LIKE "P-%"';
+    const sqlPuntosRedimidos = 'SELECT id_factura, fecha_crea, observaciones AS detalles FROM factura WHERE id_cliente = ? AND id_factura LIKE "P-%"';
+    const sqlCuponesVigentes = 'SELECT id_factura, cupon, monto_cupon, vigencia_cupon FROM factura WHERE id_cliente = ? AND cupon IS NOT NULL AND vigencia_cupon >= ?';
+    const sqlCuponesRedimidos = 'SELECT id_factura, cupon, monto_cupon, fecha_crea, observaciones FROM factura WHERE id_cliente = ? AND cupon = id_factura';
 
-
-    // Inicia el servidor
-    app.listen(PORT, () => {
-        console.log(`Servidor escuchando en el puerto ${PORT}`);
+    connection.query(sqlFacturas, [idCliente], (errorFacturas, resultFacturas) => {
+        if (errorFacturas) {
+            console.error('Error al obtener facturas:', errorFacturas);
+            res.status(500).json({ message: 'Error al obtener facturas' });
+        } else {
+            connection.query(sqlPuntosRedimidos, [idCliente], (errorPuntos, resultPuntos) => {
+                if (errorPuntos) {
+                    console.error('Error al obtener puntos redimidos:', errorPuntos);
+                    res.status(500).json({ message: 'Error al obtener puntos redimidos' });
+                } else {
+                    const today = new Date().toISOString().split('T')[0];
+                    connection.query(sqlCuponesVigentes, [idCliente, today], (errorCuponesVigentes, resultCuponesVigentes) => {
+                        if (errorCuponesVigentes) {
+                            console.error('Error al obtener cupones vigentes:', errorCuponesVigentes);
+                            res.status(500).json({ message: 'Error al obtener cupones vigentes' });
+                        } else {
+                            connection.query(sqlCuponesRedimidos, [idCliente], (errorCuponesRedimidos, resultCuponesRedimidos) => {
+                                if (errorCuponesRedimidos) {
+                                    console.error('Error al obtener cupones redimidos:', errorCuponesRedimidos);
+                                    res.status(500).json({ message: 'Error al obtener cupones redimidos' });
+                                } else {
+                                    const responseData = {
+                                        facturas: resultFacturas,
+                                        puntosRedimidos: resultPuntos,
+                                        cuponesVigentes: resultCuponesVigentes,
+                                        cuponesRedimidos: resultCuponesRedimidos
+                                    };
+                                    res.status(200).json(responseData);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
     });
+});
+
+
+
+ // Inicia el servidor
+app.listen(PORT, () => {
+    console.log(`Servidor escuchando en el puerto ${PORT}`);
+});

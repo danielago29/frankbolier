@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/main.js" defer></script>    
+    <title>Clientes</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+ 
+</head>
+<body>
+    <section>
+        <nav class="logo d-flex" style="align-items: center;">
+            <div class="img" style="align-items: center;">
+                <img src="/img/logo3.png" alt="" width="80" height="80" style="border-radius: 4rem;background-color: #333333;">
+            </div>
+            <h3 class="p-5">
+                FRANKBOLIER
+            </h3>
+        </nav>            
+    </section>
+    <section class="container" style="height: 800px;width: 100%; display: flex; justify-content: center; align-items: center;">
+        <aside class="col-md-12 d-flex flex-column" style=" justify-content: center;height: 400px;width: 100%;">
+            <div class="derecho-principal-info d-grid p-5" style="height: 800px; width: 1500px;justify-content: center; background-color: rgba(209, 148, 148, 0.6); border-radius: 2em;">
+                <div class="form-container row justify-content-center align-items-center" id="card-container">
+                    <!-- Las tarjetas se agregarán aquí dinámicamente -->
+                </div>
+            </div>
+            <div style="height: 50px;">
+                <h1></h1>
+            </div>
+        </aside>
+    </section>  
+<!-- Your JavaScript code -->
+<!-- Agrega las librerías de JavaScript de Bootstrap y jQuery si aún no lo has hecho -->
+
+<!-- Tu código JavaScript -->
+<script> 
+const cardContainer = document.getElementById("card-container");
+const urlParams = new URLSearchParams(window.location.search);
+const idCliente = urlParams.get("idCliente");
+
+        // Supongamos que tienes una función para hacer una solicitud a tu servidor
+        async function fetchTarjetas(idCliente) {
+            try {
+                const response = await fetch(`http://localhost:8000/api/obtener-info/${idCliente}`);
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error(error);
+                throw error; // Puedes decidir cómo manejar el error
+            }
+        }         
+
+// Supongamos que tienes funciones para generar contenido de tarjetas aquí...
+function generateFacturaCard(data) {
+    const formattedDate = new Date(data.fecha_crea).toLocaleDateString(); // Formatea la fecha
+    return `
+        <p>ID Factura: ${data.id_factura}</p>
+        <p>Monto: ${data.monto}</p>
+        <p>Fecha Creación: ${formattedDate}</p>
+        <p>Puntos: ${data.puntos}</p>
+        <p>Observaciones: ${data.observaciones}</p>
+    `;
+}
+
+function generatePuntosRedimidosCard(data) {
+    const formattedDate = new Date(data.fecha_crea).toLocaleDateString(); // Formatea la fecha
+    const observaciones = data.observaciones || "Sin observaciones"; // Si observaciones es undefined, mostrar "Sin observaciones"
+    return `
+        <p>ID Factura: ${data.id_factura}</p>
+        <p>Fecha de redención: ${formattedDate}</p>
+        <p>Observaciones: ${data.observaciones}</p>
+    `;
+}
+
+function generateCuponesVigentesCard(data) {
+    const formattedDate = new Date(data.fecha_crea).toLocaleDateString(); // Formatea la fecha
+    const formattedVigencia = new Date(data.vigencia_cupon).toLocaleDateString(); // Formatea la fecha
+    return `
+        <p>ID Factura: ${data.id_factura}</p>
+        <p>Cupón: ${data.cupon}</p>
+        <p>Monto Cupón: ${data.monto_cupon}</p>
+        <p>Vigencia Cupón: ${formattedVigencia}</p>
+    `;
+}
+
+function generateCuponesRedimidosCard(data) {
+    const formattedDate = new Date(data.fecha_crea).toLocaleDateString(); // Formatea la fecha
+    return `
+        <p>ID Factura: ${data.id_factura}</p>
+        <p>Cupón: ${data.cupon}</p>
+        <p>Monto Cupón: ${data.monto_cupon}</p>
+        <p>Fecha Creación: ${formattedDate}</p>
+        <p>Observaciones: ${data.observaciones}</p>
+    `;
+}
+
+// Realiza la solicitud al servidor y renderiza las tarjetas
+fetchTarjetas(idCliente)
+.then(dataTarjetas => {
+    dataTarjetas.facturas.forEach(data => {
+        const card = document.createElement("div");
+        card.classList.add("form", "m-3");
+        const cardTitle = document.createElement("h4");
+        cardTitle.textContent = "Factura";
+        cardTitle.style.color = "rgba(209, 148, 148, 0.6)"; // Color del título
+        let cardContent = generateFacturaCard(data);
+        card.appendChild(cardTitle);
+        card.innerHTML += cardContent;
+        cardContainer.appendChild(card);
+    });
+
+    dataTarjetas.puntosRedimidos.forEach(data => {
+        const card = document.createElement("div");
+        card.classList.add("form", "m-3");
+        const cardTitle = document.createElement("h4");
+        cardTitle.textContent = "Puntos Redimidos";
+        cardTitle.style.color = "rgba(209, 148, 148, 0.6)"; // Color del título
+        let cardContent = generatePuntosRedimidosCard(data);
+        card.appendChild(cardTitle);
+        card.innerHTML += cardContent;
+        cardContainer.appendChild(card);
+    });
+
+    dataTarjetas.cuponesVigentes.forEach(data => {
+        const card = document.createElement("div");
+        card.classList.add("form", "m-3");
+        const cardTitle = document.createElement("h4");
+        cardTitle.textContent = "Cupones Vigentes";
+        cardTitle.style.color = "rgba(209, 148, 148, 0.6)"; // Color del título
+        let cardContent = generateCuponesVigentesCard(data);
+        card.appendChild(cardTitle);
+        card.innerHTML += cardContent;
+        cardContainer.appendChild(card);
+    });
+
+    dataTarjetas.cuponesRedimidos.forEach(data => {
+        const card = document.createElement("div");
+        card.classList.add("form", "m-3");
+        const cardTitle = document.createElement("h4");
+        cardTitle.textContent = "Cupones Redimidos";
+        cardTitle.style.color = "rgba(209, 148, 148, 0.6)"; // Color del título
+        let cardContent = generateCuponesRedimidosCard(data);
+        card.appendChild(cardTitle);
+        card.innerHTML += cardContent;
+        cardContainer.appendChild(card);
+    });
+})
+.catch(error => {
+    console.error(error);
+});
+
+        
+</script>  
+
+
+<script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>   
+</body>
+</html>
